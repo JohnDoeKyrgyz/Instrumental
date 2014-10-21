@@ -7,11 +7,19 @@
         open Protocol
                 
         /// Groups raw readings the address of the sender
-        let readingsBySource =
+        let readingsBySource errorHandler =
+
             let readAddress (endpoint : IPEndPoint, _) = endpoint.Address.ToString()
 
-            Listener.messages
-            |> Observable.ofSeq
+            let data, errors =
+                Listener.messages
+                |> Observable.ofSeq
+                |> Observable.partitionChoice
+
+            errors
+            |> Observable.add errorHandler
+
+            data
             |> Observable.partitionBy readAddress
             |> Observable.map (fun (address, partitionedObservable) -> address, partitionedObservable |> Observable.map snd)
 
@@ -22,7 +30,7 @@
 
             data
             |> Observable.scan increment (0, Unchecked.defaultof<_>)
-            |> Observable.filter (fun (i, v) -> i = 1)
+            |> Observable.filter (fun (i, _) -> i = 1)
             |> Observable.map snd
             |> Observable.add (fun (_, vs) -> vs |> Observable.add (result.Trigger))
 
@@ -43,17 +51,20 @@
                 |> Transformations.createReading
             messages, older
             
+        let onError (ex : exn) =
+            printfn "ERROR: %s" ex.Message
+
         let printAllReadings() =
             let readSenderStream (sender, data) =
                 let messages, older = createMessages data
                 Observable.add (fun value -> printfn "%s %i %O" sender (System.Threading.Thread.CurrentThread.GetHashCode()) value) messages
-                Observable.add (fun _ -> Console.Beep(440, 10)) older
+                Observable.add (fun _ -> Console.Beep(440, 10)) older            
 
-            readingsBySource
+            readingsBySource onError
             |> Observable.add readSenderStream                               
 
         [<EntryPoint>]
-        let main argv =
+        let main _ =
             printfn "Listening for sensor messages %A" (System.Threading.SynchronizationContext.Current)
                         
             // Test 1) Read all incomming data
@@ -61,7 +72,7 @@
 
             // Test 2) Read data from first source
             let firstSource =
-                readingsBySource
+                readingsBySource onError
                 |> singleSource
 
             firstSource

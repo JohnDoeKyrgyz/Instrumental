@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
                 (TextView) findViewById(R.id.acceleratorY),
                 (TextView) findViewById(R.id.acceleratorZ));
 
-        createScreenOutputListener(Sensor.TYPE_ROTATION_VECTOR,
+        createScreenOutputListener(Sensor.TYPE_GAME_ROTATION_VECTOR,
                 (TextView) findViewById(R.id.rotationX),
                 (TextView) findViewById(R.id.rotationY),
                 (TextView) findViewById(R.id.rotationZ));

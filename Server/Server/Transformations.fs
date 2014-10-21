@@ -1,7 +1,7 @@
 ﻿namespace Instrumental
 module Transformations =
     open Protocol
-    
+
     let trackGreatestTime data =
         let readTimePart data = readTime data, data
         let greatestTime (prev, _) (time, data) =
