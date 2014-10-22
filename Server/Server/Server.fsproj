@@ -62,7 +62,7 @@
     <Compile Include="Program.fs" />
     <Content Include="packages.config" />
     <None Include="ChartSignals.fsx" />
-    <None Include="TimerTest.fsx" />
+    <None Include="MovingChartExample.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Charting">
