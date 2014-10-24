@@ -66,15 +66,14 @@
   <ItemGroup>
     <Compile Include="Protocol.fs" />
     <None Include="App.config" />
-    <Compile Include="Listener.fs" />
-    <Compile Include="Transformations.fs" />
     <Compile Include="Observable.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="Transformations.fs" />
+    <Compile Include="Listener.fs" />
     <None Include="Instrumental.fsx" />
-    <None Include="ConnectionExample.fsx" />
     <None Include="ChartSignals.fsx" />
     <None Include="MovingChartExample.fsx" />
     <Content Include="packages.config" />
+    <None Include="ConnectionTest.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

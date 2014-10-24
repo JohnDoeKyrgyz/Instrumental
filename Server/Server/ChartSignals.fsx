@@ -10,12 +10,13 @@ open Instrumental.Main
 open FSharp.Control.Reactive
 
 //printAllReadings()
+
 let readings =
     readingsBySource
     |> singleSource 
     |> Transformations.trackGreatestTime
     |> Transformations.newest
-    |> Transformations.readSensor
+    |> Transformations.readSensor    
 
 let mainContext = SynchronizationContext.Current
 
@@ -55,7 +56,7 @@ let smooth (factor : float32) data =
 
 let graphThreeValueSensor (xs, ys, zs) smoothing title =
 
-    let prepare signal = 
+    let prepare signal =
         signal 
         |> smooth smoothing 
         |> Observable.observeOnContext mainContext

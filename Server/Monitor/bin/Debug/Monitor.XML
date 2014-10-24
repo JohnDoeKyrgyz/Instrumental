@@ -5,7 +5,80 @@
 <member name="">
 
 </member>
-<member name="T:Program">
+<member name="T:Instrumental.Main">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Instrumental.Summary.Summary">
+<summary>
+ Summary information for a single user
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Instrumental.Summary.SensorSummary">
+<summary>
+ Cummulative summary information for a single sensor
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Instrumental.Summary">
 
 </member>
 </members>

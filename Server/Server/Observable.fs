@@ -1357,7 +1357,7 @@ module Observable =
 
     /// Applies an accumulator function over an observable sequence and returns each intermediate result. 
     /// The specified init value is used as the initial accumulator value.
-    let scanInit (init:'TAccumulate) (accumulator) (source:IObservable<'Source>) : IObservable<'TAccumulate> =
+    let scanInit (accumulator) (init:'TAccumulate) (source:IObservable<'Source>) : IObservable<'TAccumulate> =
         Observable.Scan( source, init, Func<'TAccumulate,'Source,'TAccumulate> accumulator )
 
 
@@ -1800,7 +1800,7 @@ module Observable =
 
 
     /// Merges two observable sequences into one observable sequence by combining their elements in a pairwise fashion.
-    let zip ( first:IObservable<'Source1>)( second:IObservable<'Source2>) ( resultSelector:'Source1 -> 'Source2 -> 'Result) : IObservable<'Result> =
+    let zip ( resultSelector:'Source1 -> 'Source2 -> 'Result) ( first:IObservable<'Source1>)( second:IObservable<'Source2>) : IObservable<'Result> =
         Observable.Zip( first, second, Func<'Source1,'Source2,'Result> resultSelector)
 
 

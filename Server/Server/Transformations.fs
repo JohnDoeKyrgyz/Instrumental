@@ -1,7 +1,8 @@
 ﻿namespace Instrumental
 module Transformations =
+    open FSharp.Control.Reactive
     open Protocol
-
+    
     let trackGreatestTime data =
         let readTimePart data = readTime data, data
         let greatestTime (prev, _) (time, data) =
@@ -9,18 +10,12 @@ module Transformations =
             nextTime, (time, data)
         data
         |> Observable.map readTimePart
-        |> Observable.scan greatestTime (0L, (0L, Array.empty<byte>))
+        |> Observable.scanInit greatestTime (0L, (0L, Array.empty<byte>))
 
     let newest data =        
         let mostRecent (prev, (time, _)) = time >= prev
         data
         |> Observable.filter mostRecent
-        |> Observable.map snd
-
-    let older data =
-        let older (prev, (time, _)) = time < prev            
-        data
-        |> Observable.filter older
         |> Observable.map snd
 
     let readSensor data =
@@ -51,3 +46,11 @@ module Transformations =
             Values = values }
         data
         |> Observable.map buildReading
+
+    let createMessages readings =
+        readings
+        |> trackGreatestTime
+        |> newest
+        |> readSensor
+        |> readValues
+        |> createReading

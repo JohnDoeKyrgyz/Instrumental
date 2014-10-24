@@ -5,14 +5,11 @@ C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\Monitor.pdb
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\FSharp.Core.dll
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\InstrumentalServer.dll
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\System.Reactive.Interfaces.dll
-C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\FSharp.Control.Reactive.dll
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\System.Reactive.Core.dll
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\System.Reactive.Linq.dll
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\InstrumentalServer.pdb
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\FSharp.Core.xml
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\System.Reactive.Interfaces.xml
-C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\FSharp.Control.Reactive.pdb
-C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\FSharp.Control.Reactive.xml
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\System.Reactive.Core.xml
 C:\working\Personal\Instrumental\Server\Monitor\bin\Debug\System.Reactive.Linq.xml
 C:\working\Personal\Instrumental\Server\Monitor\obj\Debug\Monitor.fsprojResolveAssemblyReference.cache
