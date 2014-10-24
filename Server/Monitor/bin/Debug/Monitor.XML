@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>Monitor</name></assembly>
+<members>
+<member name="">
+
+</member>
+<member name="T:Instrumental.Main">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Instrumental.Summary.Summary">
+<summary>
+ Summary information for a single user
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Instrumental.Summary.SensorSummary">
+<summary>
+ Cummulative summary information for a single sensor
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Instrumental.Summary">
+
+</member>
+</members>
+</doc>

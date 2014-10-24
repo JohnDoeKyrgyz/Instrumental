@@ -1,30 +1,31 @@
-﻿#I @"..\packages\FSharp.Charting.0.90.7"
-#load "FSharp.Charting.fsx"
-#r @"bin\Debug\InstrumentalServer.exe"
+﻿#load "Instrumental.fsx"
 
-open System
 open System.Drawing
+open System.Threading
 
 open FSharp.Charting
-
 open Instrumental
 open Instrumental.Main
+
+open FSharp.Control.Reactive
 
 //printAllReadings()
 
 let readings =
-    readingsBySource onError
+    readingsBySource
     |> singleSource 
     |> Transformations.trackGreatestTime
     |> Transformations.newest
-    |> Transformations.readSensor
+    |> Transformations.readSensor    
+
+let mainContext = SynchronizationContext.Current
 
 let byTime values =
     values
     |> Observable.map (fun (time, _, values) -> time, values)
 
 let threeAxisReadings timmed =    
-
+    
     let select index (time, values : array<_>) = time, values.[index]
 
     let xs = timmed |> Observable.map (select 0)
@@ -55,9 +56,15 @@ let smooth (factor : float32) data =
 
 let graphThreeValueSensor (xs, ys, zs) smoothing title =
 
-    let xs = xs |> smooth smoothing
-    let ys = ys |> smooth smoothing
-    let zs = zs |> smooth smoothing
+    let prepare signal =
+        signal 
+        |> smooth smoothing 
+        |> Observable.observeOnContext mainContext
+
+    let xs = prepare xs
+    let ys = prepare ys
+    let zs = prepare zs
+
     let form =
         Chart
             .Combine([
@@ -77,13 +84,13 @@ graphThreeValueSensor gyro 0.1f "Gyro"
 graphThreeValueSensor rotation 0.0001f "Rotation"
 graphThreeValueSensor magnet 0.0001f "Magnet"
 graphXYSensor touch "Touch"
-
-readings
-|> Observable.scan (fun sensors (_, sensor, _) -> (Set.add sensor sensors)) (Set.empty)
-|> Observable.pairwise
-|> Observable.filter (fun (a, b) -> a <> b)
-|> Observable.map snd
-|> Observable.add (printfn "%A")
+//
+//readings
+//|> Observable.scan (fun sensors (_, sensor, _) -> (Set.add sensor sensors)) (Set.empty)
+//|> Observable.pairwise
+//|> Observable.filter (fun (a, b) -> a <> b)
+//|> Observable.map snd
+//|> Observable.add (printfn "%A")
 
 
 printfn "Launched Chart"
