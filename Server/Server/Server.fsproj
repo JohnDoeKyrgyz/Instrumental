@@ -73,7 +73,8 @@
     <None Include="ChartSignals.fsx" />
     <None Include="MovingChartExample.fsx" />
     <Content Include="packages.config" />
-    <None Include="ConnectionTest.fsx" />
+    <None Include="ObservablePerformanceComparison.fsx" />
+    <None Include="CommunicationTest.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

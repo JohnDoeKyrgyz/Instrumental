@@ -4,8 +4,7 @@ module Listener =
 
     open System.Net
     open System.Net.Sockets
-    open System.Threading.Tasks
-    open System
+    open System.Reactive.Concurrency
 
     open FSharp.Control.Reactive
 
@@ -17,18 +16,18 @@ module Listener =
         client.Client.Bind(localEndpoint)
         client
 
+    /// An infinite sequence of messages from the network
+    let messages = seq {
+        while(true) do
+            let ipEndPoint = ref (new IPEndPoint(0L, 0))
+            let data = client.Receive(ipEndPoint)
+            let result = new UdpReceiveResult(data, !ipEndPoint)
+            yield result }
+
     /// An observable of datagrams from the local network
-    let udpMessages =
-        let signal = new Event<_>()
-        let builder = async {
-            while (true) do
-                let! data = client.ReceiveAsync() |> Async.AwaitTask
-                signal.Trigger data }
-
-        //Async.StartAsTask(builder, TaskCreationOptions.LongRunning) |> ignore
-        Async.StartAsTask(builder) |> ignore
-
-        signal.Publish :> IObservable<_>
+    let udpMessages =        
+        messages
+        |> Observable.ofSeqOn NewThreadScheduler.Default
 
     /// Groups raw readings the address of the sender
     let readingsBySource =

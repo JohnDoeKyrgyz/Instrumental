@@ -385,11 +385,9 @@ module Observable =
     let containsCompare comparer value source =
         Observable.Contains( source, value, comparer )
 
-
     /// Counts the elements
     let count source = 
         Observable.Count(source)
-
 
     /// Returns an observable sequence containing an int that represents how many elements 
     /// in the specified observable sequence satisfy a condition.
@@ -397,30 +395,25 @@ module Observable =
         Observable.Count( source, predicate )
 
     ///  Creates an observable sequence from a specified Subscribe method implementation.
-    let create subscribe =
+    let create subscribe =        
         Observable.Create(Func<IObserver<'Result>,Action> subscribe)
-
 
     /// Creates an observable sequence from a specified Subscribe method implementation.
     let createWithDisposable subscribe =
         Observable.Create(Func<IObserver<'Result>,IDisposable> subscribe)
 
-
     /// Returns the elements of the specified sequence or the type parameter's default value 
     /// in a singleton sequence if the sequence is empty.
-    let defaultIfEmpty    ( source:IObservable<'Source> ): IObservable<'Source> =
-        Observable.DefaultIfEmpty( source )
-
+    let defaultIfEmpty source =
+        Observable.DefaultIfEmpty<'Source>( source )
 
     /// Returns the elements of the specified sequence or the specified value in a singleton sequence if the sequence is empty.
     let defaultIfEmptyIs (defaultValue:'Source )( source:IObservable<'Source> ) : IObservable<'Source> =
-        Observable.DefaultIfEmpty( source, defaultValue )
-    
+        Observable.DefaultIfEmpty( source, defaultValue )    
 
     /// Returns an observable sequence that invokes the specified factory function whenever a new observer subscribes.    
     let defer ( observableFactory: unit -> IObservable<'Result> ): IObservable<'Result> =
         Observable.Defer(Func<IObservable<'Result>> observableFactory )
-
 
     /// Time shifts the observable sequence by the specified relative time duration.
     /// The relative time intervals between the values are preserved.
@@ -1171,18 +1164,12 @@ module Observable =
     let perform f source =
         let inner x = f x
         Observable.Do(source, inner)
-     
-
-    /// Invokes the finally action after source observable sequence terminates normally or by an exception.
-    let performFinally f source = Observable.Finally(source, Action f)
-
 
     /// Returns a connectable observable sequence (IConnectableObsevable) that shares
     /// a single subscription to the underlying sequence. This operator is a 
     /// specialization of Multicast using a regular Subject
     let publish source = 
         Observable.Publish( source )
-
 
     /// Returns a connectable observable sequence (IConnectableObsevable) that shares
     /// a single subscription to the underlying sequence and starts with the value
