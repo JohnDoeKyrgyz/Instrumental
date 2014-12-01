@@ -5,7 +5,7 @@ open System.Threading
 
 open FSharp.Charting
 open Instrumental
-open Instrumental.Main
+open Instrumental.Listener
 
 open FSharp.Control.Reactive
 
@@ -13,7 +13,9 @@ open FSharp.Control.Reactive
 
 let readings =
     readingsBySource
-    |> singleSource 
+    |> Observable.first
+    |> Observable.map (fun (_, vs) -> vs)
+    |> Observable.flatmap (fun vs -> vs)
     |> Transformations.trackGreatestTime
     |> Transformations.newest
     |> Transformations.readSensor    

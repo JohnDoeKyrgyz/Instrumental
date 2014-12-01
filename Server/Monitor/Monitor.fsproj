@@ -64,7 +64,7 @@
     <Compile Include="ViewModel\RelayCommand.fs" />
     <Compile Include="ViewModel\ViewModelBase.fs" />
     <Compile Include="ViewModel\MainWindowViewModel.fs" />
-    <Compile Include="ViewModel\ExpenseItHomeViewModel.fs" />
+    <Compile Include="ViewModel\SummaryViewModel.fs" />
     <Compile Include="App.fs" />
     <Content Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -78,12 +78,12 @@
       <SubType>Designer</SubType>
     </Resource>
     <Resource Include="watermark.png" />
-    <Resource Include="ExpenseItHome.xaml">
+    <Resource Include="Summary.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Resource>
     <Content Include="packages.config" />
-    <Compile Include="Summary.fs" />
+    <None Include="WPFTest.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Accessibility" />
@@ -103,13 +103,31 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading">
+      <HintPath>..\packages\Rx-XAML.2.2.5\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="UIAutomationProvider" />
     <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Server\Server.fsproj">
       <Name>Server</Name>
       <Project>{89008eca-70c8-4314-99fb-9030d70772e8}</Project>

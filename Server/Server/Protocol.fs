@@ -32,5 +32,3 @@
             let offset = 12            
             let valuesCount = (data.Length - offset) / word
             [|for i in 0 .. valuesCount - 1 -> readValue (offset + (i * word)) word BitConverter.ToSingle data|]
-
-        

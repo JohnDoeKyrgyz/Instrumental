@@ -2,7 +2,7 @@
 
 open System
 open System.Windows
-open FSharpWpfMvvmTemplate.ViewModel
+open Instrumental.ViewModel
 
 // Create the View and bind it to the View Model
 let mainWindowViewModel = 

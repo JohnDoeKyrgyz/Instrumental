@@ -69,12 +69,14 @@
     <Compile Include="Observable.fs" />
     <Compile Include="Transformations.fs" />
     <Compile Include="Listener.fs" />
+    <Compile Include="Summary.fs" />
     <None Include="Instrumental.fsx" />
     <None Include="ChartSignals.fsx" />
     <None Include="MovingChartExample.fsx" />
     <Content Include="packages.config" />
     <None Include="ObservablePerformanceComparison.fsx" />
     <None Include="CommunicationTest.fsx" />
+    <None Include="TimeOutTest.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
