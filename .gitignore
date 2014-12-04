@@ -1,6 +1,6 @@
 /Client/.idea
 /Client/gen
 /Client/out
-/Server/Server/bin
-/Server/Server/obj
+/Server/*/bin
+/Server/*/obj
 /Server/*.suo
