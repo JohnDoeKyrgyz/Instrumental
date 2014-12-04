@@ -1,117 +1,98 @@
 ﻿namespace Instrumental.ViewModel
 
+open System.Windows.Threading
 open System.Collections.ObjectModel
 
 open Instrumental.Summary
 
 type ValueSummaryModel() =
     inherit ViewModelBase()
-    with
-        let min = ref ValueSummary.Default        
+    let min = ref ValueSummary.Default
+    let max = ref ValueSummary.Default        
+    with                
         member this.Min
             with get() = !min
-            and set value = setProperty this <@@ this.Min @@> min value
-
-        let max = ref ValueSummary.Default        
+            and set value = setProperty this <@@ this.Min @@> min value        
         member this.Max
             with get() = !max
             and set value = setProperty this <@@ this.Max @@> max value
 
 type SensorSummaryModel(sensor : int) =
     inherit ViewModelBase()
+    let values = new ObservableCollection<ValueSummaryModel>([for i in 0 .. 3 -> new ValueSummaryModel()])
     with
         member this.Sensor = sensor
-        member this.Values = new ObservableCollection<ValueSummaryModel>([for i in 0 .. 3 -> new ValueSummaryModel()])
+        member this.Values = values
 
 type DeviceSummaryModel(name : string) =
     inherit ViewModelBase()
+    let sensors = new ObservableCollection<SensorSummaryModel>()
     with
         member this.Name = name
-        member this.Sensors = new ObservableCollection<SensorSummaryModel>()
+        member this.Sensors = sensors
 
 module SummaryTranslation =
 
     open System
+    open System.Collections.Generic
+    open System.Linq
     open System.Reactive.Concurrency
     open FSharp.Control.Reactive
 
     let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) =
-        
-        let index = 
-            seq {
-                for device in devices do
-                    let sensorsByNumber =
-                        seq {
-                            for sensor in device.Sensors do
-                                yield sensor.Sensor, sensor}
-                            |> Map.ofSeq
-                    yield device.Name, (device, sensorsByNumber)}
-            |> Map.ofSeq
 
-        let processUpdate (index : Map<string, DeviceSummaryModel * Map<int, SensorSummaryModel>>) updateMessage =
+        let find (collection : IEnumerable<'T>) (predicate : 'T -> bool) =
+            match box (collection.SingleOrDefault( new Func<'T, bool>(predicate))) with
+            | null -> None
+            | value -> Some (value :?> 'T)
+
+        let findDevice device = find devices (fun v -> v.Name = device)
+        let findSensor (device : DeviceSummaryModel) sensor = find device.Sensors (fun v -> v.Sensor = sensor)
+
+        let processUpdate updateMessage =
             
             match updateMessage with
             | Disconnect device ->
-                match index |> Map.tryFind device with
-                | Some (model, sensorIndex) ->
-                    devices.Remove(model) |> ignore
-                    index |> Map.remove device
-                | None -> index
+                let existingModel = findDevice device
+                if existingModel.IsSome then do
+                    devices.Remove existingModel.Value |> ignore
 
             | Connect device ->
-                match index |> Map.tryFind device with
-                | None ->
-                    let model = DeviceSummaryModel device
-                    devices.Add model 
-                    let sensorIndex = Map.empty<int, SensorSummaryModel>
-                    index |> Map.add device (model, Map.empty) 
-                | Some _ -> index
+                let existingModel = findDevice device
+                if existingModel.IsNone then do
+                    devices.Add (new DeviceSummaryModel(device) )
 
             | Update update ->
 
-                //find or add device
-                let (deviceSummary, sensorsIndex) =
-                    match index |> Map.tryFind update.Device with
-                    | Some entry -> entry
-                    | None ->
-                        let deviceSummary = new DeviceSummaryModel(update.Device)
-                        devices.Add(deviceSummary)
-                        (deviceSummary, Map.empty)
+                let deviceSummary =
+                    match findDevice update.Device with
+                    | Some value -> value
+                    | None -> failwith (sprintf "Device %s does not exist" update.Device)                
 
                 //find or add sensor
-                let sensorIndex, sensorSummary =
-                    match sensorsIndex |> Map.tryFind update.Sensor with
-                    | Some sensorSummary -> sensorsIndex, sensorSummary
+                let sensorSummary =
+                    match findSensor deviceSummary update.Sensor with
+                    | Some value -> value
                     | None ->
                         let sensorSummary = new SensorSummaryModel(update.Sensor)
                         deviceSummary.Sensors.Add(sensorSummary)
-
-                        let sensorIndex =
-                            sensorsIndex 
-                            |> Map.add (update.Sensor) sensorSummary
-
-                        sensorIndex, sensorSummary
-
-                //find or add value summary
-                let valuesCount = sensorSummary.Values.Count
-                if update.Index > valuesCount then do
-                    for i in valuesCount .. (update.Index - 1) do
-                        sensorSummary.Values.Add(new ValueSummaryModel())
+                        sensorSummary
 
                 //update value summary
-                let valueSummary = sensorSummary.Values.Item update.Index            
+                let valueSummary = sensorSummary.Values.Item update.Index
                 match update.Update with
                 | Min value -> valueSummary.Min <- value
                 | Max value -> valueSummary.Max <- value
-            
-                index |> Map.add update.Device (deviceSummary, sensorIndex)            
+                
+                Diagnostics.Debug.WriteLine(sprintf "%A" update)
+                sensorSummary.Values.RemoveAt update.Index
+                sensorSummary.Values.Insert( update.Index, valueSummary )                
 
         let readings = summarizeReadings timeout
 
         readings
         |> Observable.observeOn (DispatcherScheduler.Current)
-        |> Observable.scanInit processUpdate index
-        |> Observable.subscribe ignore
+        |> Observable.subscribe processUpdate
 
 open System
 open System.Windows
@@ -128,7 +109,7 @@ type SummaryViewModel() as this =
         let timeoutTimeSpan = TimeSpan.FromMilliseconds (float timeoutDuration)
         subscription <- subscribeToSummaryUpdates timeoutTimeSpan this.Devices
 
-    let timeoutDuration = ref 300L
+    let timeoutDuration = ref 3000L
 
     let onClose cancelEventArgs =
         subscription.Dispose()

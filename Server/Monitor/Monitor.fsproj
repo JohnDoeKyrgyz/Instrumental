@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Behavior\ConverterBase.fs" />
     <Compile Include="Behavior\StringExistsToVisibilityConverter.fs" />
+    <Compile Include="Behavior\DebugConverter.fs" />
     <Compile Include="ViewModel\RelayCommand.fs" />
     <Compile Include="ViewModel\ViewModelBase.fs" />
     <Compile Include="ViewModel\MainWindowViewModel.fs" />

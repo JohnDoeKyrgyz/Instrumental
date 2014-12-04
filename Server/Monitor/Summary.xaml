@@ -9,7 +9,7 @@
         <ViewModel:SummaryViewModel></ViewModel:SummaryViewModel>
     </UserControl.DataContext>
     <UserControl.Resources>
-        <ResourceDictionary Source="ApplicationResources.xaml" />
+        <ResourceDictionary Source="ApplicationResources.xaml" />		
     </UserControl.Resources>
     <Grid>
 		<Grid.RowDefinitions>
@@ -21,11 +21,30 @@
 				<DataTemplate>
 					<StackPanel Orientation="Vertical">
 						<TextBlock Text="{Binding Name}"/>
-						<TextBlock Text="{Binding Sensors.Count}"/>
 						<ItemsControl ItemsSource="{Binding Sensors}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding Sensor}"/>
+									<StackPanel Orientation="Vertical">
+										<TextBlock Text="{Binding Sensor}"/>
+										<ItemsControl ItemsSource="{Binding Values}">
+											<ItemsControl.ItemTemplate>
+												<DataTemplate>
+													<StackPanel Orientation="Vertical">
+														<TextBlock>
+															<TextBlock.Text>
+																<MultiBinding StringFormat="Min {0} at {1}, Max {2} at {3}">
+																	<Binding Path="Min.Value"/>
+																	<Binding Path="Min.Time"/>
+																	<Binding Path="Max.Value"/>
+																	<Binding Path="Max.Time"/>
+																</MultiBinding>
+															</TextBlock.Text>
+														</TextBlock>
+													</StackPanel>
+												</DataTemplate>
+											</ItemsControl.ItemTemplate>											
+										</ItemsControl>
+									</StackPanel>									
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>							
 						</ItemsControl>

@@ -109,5 +109,6 @@ module Transformations =
                         inTimeout := 1
                         timeoutSignal.OnNext Timeout), TaskCreationOptions.LongRunning )
 
-        timeoutSignal
+        Observable.single Resume
+        |> Observable.concat timeoutSignal
         |> Observable.merge values
