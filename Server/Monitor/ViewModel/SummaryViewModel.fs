@@ -20,16 +20,21 @@ type ValueSummaryModel() =
 type SensorSummaryModel(sensor : int) =
     inherit ViewModelBase()
     let values = new ObservableCollection<ValueSummaryModel>([for i in 0 .. 3 -> new ValueSummaryModel()])
+    let resetCommand = new ObservableCommand()
     with
         member this.Sensor = sensor
         member this.Values = values
+        member this.Reset = resetCommand
 
 type DeviceSummaryModel(name : string) =
     inherit ViewModelBase()
     let sensors = new ObservableCollection<SensorSummaryModel>()
+    let resetCommand = new ObservableCommand()
     with
         member this.Name = name
         member this.Sensors = sensors
+        member this.Reset = resetCommand
+
 
 module SummaryTranslation =
 
@@ -39,7 +44,7 @@ module SummaryTranslation =
     open System.Reactive.Concurrency
     open FSharp.Control.Reactive
 
-    let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) =
+    let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) (resetSignal : IObservable<ResetMessage>) =
 
         let find (collection : IEnumerable<'T>) (predicate : 'T -> bool) =
             match box (collection.SingleOrDefault( new Func<'T, bool>(predicate))) with
@@ -84,7 +89,6 @@ module SummaryTranslation =
                 | Min value -> valueSummary.Min <- value
                 | Max value -> valueSummary.Max <- value
                 
-                Diagnostics.Debug.WriteLine(sprintf "%A" update)
                 sensorSummary.Values.RemoveAt update.Index
                 sensorSummary.Values.Insert( update.Index, valueSummary )                
 

@@ -20,11 +20,13 @@
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
 					<StackPanel Orientation="Vertical">
+						<Button Command="{Binding Reset}">Reset All</Button>
 						<TextBlock Text="{Binding Name}"/>
 						<ItemsControl ItemsSource="{Binding Sensors}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
 									<StackPanel Orientation="Vertical">
+										<Button Command="{Binding Reset}">Reset</Button>
 										<TextBlock Text="{Binding Sensor}"/>
 										<ItemsControl ItemsSource="{Binding Values}">
 											<ItemsControl.ItemTemplate>
@@ -39,15 +41,15 @@
 																	<Binding Path="Max.Time"/>
 																</MultiBinding>
 															</TextBlock.Text>
-														</TextBlock>
+														</TextBlock>														
 													</StackPanel>
 												</DataTemplate>
 											</ItemsControl.ItemTemplate>											
-										</ItemsControl>
+										</ItemsControl>										
 									</StackPanel>									
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>							
-						</ItemsControl>
+						</ItemsControl>						
 					</StackPanel>					
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
