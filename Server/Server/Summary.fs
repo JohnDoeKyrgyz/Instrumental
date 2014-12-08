@@ -28,14 +28,15 @@
             Update: ValueUpdate
             Index: int }
 
+        type ResetMessage =
+            | ResetAll of string
+            | ResetSensor of string * int
+
         type UpdateMessage =
             | Update of Update
             | Connect of string
             | Disconnect of string
-
-        type ResetMessage =
-            | ResetAll of string
-            | ResetSensor of string * int
+            | Reset of ResetMessage        
 
         type private ReadingSummary = {
             Min: ValueSummary
@@ -92,18 +93,24 @@
                 readings, updates
 
             let applyReset reset key readings =
+
                 let resetKey, builder =
                     match reset with
                     | ResetAll resetKey -> 
                         resetKey, fun () -> Map.empty
                     | ResetSensor( resetKey, sensor) -> 
                         resetKey, fun () -> if readings |> Map.containsKey sensor then readings |> Map.remove sensor else readings
-                if resetKey = key then builder() else readings                    
+                                        
+                if resetKey = key 
+                then builder(), [Reset(reset)]
+                else readings, []                    
 
-            let processMessages key (readings, _ : Update list) message =
+            let processMessages key (readings, _) message =
                 match message with
-                | Choice1Of2 reading -> addReading key readings reading
-                | Choice2Of2 reset -> applyReset reset key readings, []
+                | Choice1Of2 reading -> 
+                    let readings, updates = addReading key readings reading
+                    readings, updates |> List.map Update
+                | Choice2Of2 reset -> applyReset reset key readings
 
             let summarizeDeviceReadings key readings =
                             
@@ -122,7 +129,6 @@
                 |> Observable.map snd
                 |> Observable.filter (List.isEmpty >> not)
                 |> Observable.flatmapSeq List.toSeq
-                |> Observable.map Update       
 
             let createClientUpdates (key, (values : IObservable<byte[]>)) =
                 

@@ -49,28 +49,6 @@ module SummaryTranslation =
     open System.Reactive.Subjects
     open System.Reactive.Disposables
 
-    let applyReset (devices : ObservableCollection<DeviceSummaryModel>) reset =
-        let removeDevices summaries = 
-            for summary in summaries do 
-                devices.Remove(summary)
-                |> ignore
-
-        let removeSensors sensorId summaries =
-            for (summary : #DeviceSummaryModel) in summaries do
-                let sensors = [for sensor in summary.Sensors do if sensor.Sensor = sensorId then yield sensor]
-                for sensorToRemove in sensors do
-                    summary.Sensors.Remove(sensorToRemove) 
-                    |> ignore
-
-        let key, action =
-            match reset with
-            | ResetAll key -> key, removeDevices
-            | ResetSensor (key, sensor) -> key, removeSensors sensor
-
-        devices
-        |> Seq.filter (fun device -> device.Name = key)
-        |> action
-
     let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) =
 
         let resetSignal = new Subject<ResetMessage>()
@@ -119,7 +97,26 @@ module SummaryTranslation =
                 | Max value -> valueSummary.Max <- value
                 
                 sensorSummary.Values.RemoveAt update.Index
-                sensorSummary.Values.Insert( update.Index, valueSummary )                
+                sensorSummary.Values.Insert( update.Index, valueSummary )
+                
+            | Reset reset -> 
+
+                let doWithDevice device action =
+                    let findDeviceResult = findDevice device
+                    if findDeviceResult.IsSome then do
+                        action findDeviceResult.Value
+
+                let resetSensorSummary (sensorSummary : SensorSummaryModel) =
+                    for value in sensorSummary.Values do
+                        value.Max <- ValueSummary.Default
+                        value.Min <- ValueSummary.Default
+
+                match reset with
+                | ResetAll device -> doWithDevice device (fun deviceSummary -> deviceSummary.Sensors |> Seq.iter resetSensorSummary )
+                | ResetSensor (device, sensor) -> doWithDevice device (fun deviceSummary ->
+                    let findSensorResult = findSensor deviceSummary sensor
+                    if findSensorResult.IsSome then do
+                        resetSensorSummary findSensorResult.Value )
 
         let readings = summarizeReadings timeout (resetSignal :> IObservable<ResetMessage>)
 

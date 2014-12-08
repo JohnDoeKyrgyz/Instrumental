@@ -20,13 +20,13 @@
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
 					<StackPanel Orientation="Vertical">
-						<Button Command="{Binding Reset}">Reset All</Button>
+						<Button Command="{Binding Reset}" CommandParameter="{Binding Name}">Reset All</Button>
 						<TextBlock Text="{Binding Name}"/>
 						<ItemsControl ItemsSource="{Binding Sensors}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
 									<StackPanel Orientation="Vertical">
-										<Button Command="{Binding Reset}">Reset</Button>
+										<Button Command="{Binding Reset}" CommandParameter="{Binding Sensor}">Reset</Button>
 										<TextBlock Text="{Binding Sensor}"/>
 										<ItemsControl ItemsSource="{Binding Values}">
 											<ItemsControl.ItemTemplate>
