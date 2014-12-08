@@ -36,6 +36,7 @@ module SummaryTranslation =
     open System
     open System.Collections.Generic
     open System.Linq
+    open System.Reactive.Linq
     open System.Reactive.Concurrency
     open FSharp.Control.Reactive
 
@@ -88,7 +89,7 @@ module SummaryTranslation =
                 sensorSummary.Values.RemoveAt update.Index
                 sensorSummary.Values.Insert( update.Index, valueSummary )                
 
-        let readings = summarizeReadings timeout
+        let readings = summarizeReadings timeout (Observable.Never<ResetMessage>())
 
         readings
         |> Observable.observeOn (DispatcherScheduler.Current)

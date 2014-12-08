@@ -33,11 +33,15 @@
             | Connect of string
             | Disconnect of string
 
+        type ResetMessage =
+            | ResetAll of string
+            | ResetSensor of string * int
+
         type private ReadingSummary = {
             Min: ValueSummary
             Max: ValueSummary }
 
-        let summarizeReadings deviceTimeout =
+        let summarizeReadings deviceTimeout (resetSignal : IObservable<ResetMessage>) =
 
             let newTime = DateTime.Now
 
@@ -51,7 +55,7 @@
                 let newValue = comparitor (existingValue.Value) value
                 if value = newValue then existingValue else createValue value newTime deviceTime
 
-            let addReading key (readings, _) reading =
+            let addReading key readings reading =
                 let update comparitor i = updateValue reading.Values.[i] reading.Time comparitor
                 let updateReadingSummary i readingSummary =
                     let updateMin = update min
@@ -80,17 +84,41 @@
                                     then Max newSummary.Max
                                     else Min newSummary.Min
                                 yield {Device = key; Sensor = reading.Sensor; Update = valueUpdate; Index = i}]
-                        
+                                                        
                 let readings = 
                     readings 
                     |> Map.add reading.Sensor newSummaries
 
-                readings, updates                    
+                readings, updates
+
+            let applyReset reset key readings =
+                let resetKey, builder =
+                    match reset with
+                    | ResetAll resetKey -> 
+                        resetKey, fun () -> Map.empty
+                    | ResetSensor( resetKey, sensor) -> 
+                        resetKey, fun () -> if readings |> Map.containsKey sensor then readings |> Map.remove sensor else readings
+                if resetKey = key then builder() else readings                    
+
+            let processMessages key (readings, _ : Update list) message =
+                match message with
+                | Choice1Of2 reading -> addReading key readings reading
+                | Choice2Of2 reset -> applyReset reset key readings, []
 
             let summarizeDeviceReadings key readings =
-                readings
-                |> Transformations.createMessages
-                |> Observable.scanInit (addReading key) (Map.empty, [])
+                            
+                let resetSignal =
+                    resetSignal
+                    |> Observable.map Choice2Of2
+
+                let readingMessages =
+                    readings
+                    |> Transformations.createMessages
+                    |> Observable.map Choice1Of2
+
+                readingMessages
+                |> Observable.merge resetSignal                
+                |> Observable.scanInit (processMessages key) (Map.empty, [])
                 |> Observable.map snd
                 |> Observable.filter (List.isEmpty >> not)
                 |> Observable.flatmapSeq List.toSeq
@@ -106,7 +134,7 @@
                     timmedValues
                     |> Observable.filter Transformations.isValue
                     |> Observable.map Transformations.value
-                    |> summarizeDeviceReadings key
+                    |> summarizeDeviceReadings key                
                 
                 timmedValues
                 |> Observable.filter (Transformations.isValue >> not)
@@ -115,7 +143,7 @@
                     | Transformations.Resume -> Connect key
                     | Transformations.Timeout -> Disconnect key
                     | _ -> failwith "Unexpected value" )
-                |> Observable.merge summarizedReadings
+                |> Observable.merge summarizedReadings             
                                 
             readingsBySource
             |> Observable.flatmap createClientUpdates
