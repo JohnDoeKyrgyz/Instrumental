@@ -6,7 +6,7 @@ open Instrumental.ViewModel
 
 // Create the View and bind it to the View Model
 let mainWindowViewModel = 
-    let window = new System.Uri("/App;component/mainwindow.xaml", UriKind.Relative)
+    let window = new System.Uri("/Monitor;component/mainwindow.xaml", UriKind.Relative)
     Application.LoadComponent(window) :?> Window
                              
 mainWindowViewModel.DataContext <- new MainWindowViewModel() 
