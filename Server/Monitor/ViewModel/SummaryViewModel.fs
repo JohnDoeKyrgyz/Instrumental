@@ -17,19 +17,21 @@ type ValueSummaryModel() =
             with get() = !max
             and set value = setProperty this <@@ this.Max @@> max value
 
-type SensorSummaryModel(sensor : int) =
+type SensorSummaryModel(device : string, sensor : int, resetSignal) =
     inherit ViewModelBase()
     let values = new ObservableCollection<ValueSummaryModel>([for i in 0 .. 3 -> new ValueSummaryModel()])
-    let resetCommand = new ObservableCommand()
+    let convert _ = ResetSensor (device, sensor)
+    let resetCommand = new ObservableCommand<ResetMessage>(resetSignal, convert)
     with
         member this.Sensor = sensor
         member this.Values = values
         member this.Reset = resetCommand
 
-type DeviceSummaryModel(name : string) =
+type DeviceSummaryModel(name : string, resetSignal) =
     inherit ViewModelBase()
     let sensors = new ObservableCollection<SensorSummaryModel>()
-    let resetCommand = new ObservableCommand()
+    let convert (arg : obj) = ResetAll (arg :?> string)
+    let resetCommand = new ObservableCommand<ResetMessage>(resetSignal, convert)
     with
         member this.Name = name
         member this.Sensors = sensors
@@ -44,8 +46,34 @@ module SummaryTranslation =
     open System.Reactive.Linq
     open System.Reactive.Concurrency
     open FSharp.Control.Reactive
+    open System.Reactive.Subjects
+    open System.Reactive.Disposables
 
-    let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) (resetSignal : IObservable<ResetMessage>) =
+    let applyReset (devices : ObservableCollection<DeviceSummaryModel>) reset =
+        let removeDevices summaries = 
+            for summary in summaries do 
+                devices.Remove(summary)
+                |> ignore
+
+        let removeSensors sensorId summaries =
+            for (summary : #DeviceSummaryModel) in summaries do
+                let sensors = [for sensor in summary.Sensors do if sensor.Sensor = sensorId then yield sensor]
+                for sensorToRemove in sensors do
+                    summary.Sensors.Remove(sensorToRemove) 
+                    |> ignore
+
+        let key, action =
+            match reset with
+            | ResetAll key -> key, removeDevices
+            | ResetSensor (key, sensor) -> key, removeSensors sensor
+
+        devices
+        |> Seq.filter (fun device -> device.Name = key)
+        |> action
+
+    let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) =
+
+        let resetSignal = new Subject<ResetMessage>()
 
         let find (collection : IEnumerable<'T>) (predicate : 'T -> bool) =
             match box (collection.SingleOrDefault( new Func<'T, bool>(predicate))) with
@@ -66,7 +94,7 @@ module SummaryTranslation =
             | Connect device ->
                 let existingModel = findDevice device
                 if existingModel.IsNone then do
-                    devices.Add (new DeviceSummaryModel(device) )
+                    devices.Add (new DeviceSummaryModel(device, resetSignal) )
 
             | Update update ->
 
@@ -80,7 +108,7 @@ module SummaryTranslation =
                     match findSensor deviceSummary update.Sensor with
                     | Some value -> value
                     | None ->
-                        let sensorSummary = new SensorSummaryModel(update.Sensor)
+                        let sensorSummary = new SensorSummaryModel(update.Device, update.Sensor, resetSignal)
                         deviceSummary.Sensors.Add(sensorSummary)
                         sensorSummary
 
@@ -93,11 +121,16 @@ module SummaryTranslation =
                 sensorSummary.Values.RemoveAt update.Index
                 sensorSummary.Values.Insert( update.Index, valueSummary )                
 
-        let readings = summarizeReadings timeout (Observable.Never<ResetMessage>())
+        let readings = summarizeReadings timeout (resetSignal :> IObservable<ResetMessage>)
 
-        readings
-        |> Observable.observeOn (DispatcherScheduler.Current)
-        |> Observable.subscribe processUpdate
+        let subscription =
+            readings
+            |> Observable.observeOn (DispatcherScheduler.Current)
+            |> Observable.subscribe processUpdate
+
+        Disposable.Create (fun () -> 
+            subscription.Dispose()
+            resetSignal.Dispose())        
 
 open System
 open System.Windows
