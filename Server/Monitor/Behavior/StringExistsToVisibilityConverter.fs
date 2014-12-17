@@ -2,7 +2,6 @@
 
 open System
 open System.Windows
-open ConverterBase
 
 /// Returns Visibility.Visible if the string is not null or empty
 type StringExistsToVisibilityConverter() =

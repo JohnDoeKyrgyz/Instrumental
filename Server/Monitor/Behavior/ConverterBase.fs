@@ -1,9 +1,13 @@
-﻿module ConverterBase
+﻿namespace Instrumental.Behavior
 
-open System;
+
+open System
 open System.Windows.Data
 
-let nullFunction = fun value target param culture -> value
+module ConverterBaseDefaults =
+    let nullFunction = fun value target param culture -> value
+
+open ConverterBaseDefaults
 
 /// abstract class for converter
 [<AbstractClass>]

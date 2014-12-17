@@ -49,9 +49,9 @@ module SummaryTranslation =
     open System.Reactive.Subjects
     open System.Reactive.Disposables
 
-    let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) =
+    let resetSignal = new Subject<ResetMessage>()
 
-        let resetSignal = new Subject<ResetMessage>()
+    let subscribeToSummaryUpdates timeout (devices : ObservableCollection<DeviceSummaryModel>) =
 
         let find (collection : IEnumerable<'T>) (predicate : 'T -> bool) =
             match box (collection.SingleOrDefault( new Func<'T, bool>(predicate))) with
@@ -125,9 +125,7 @@ module SummaryTranslation =
             |> Observable.observeOn (DispatcherScheduler.Current)
             |> Observable.subscribe processUpdate
 
-        Disposable.Create (fun () -> 
-            subscription.Dispose()
-            resetSignal.Dispose())        
+        Disposable.Create (fun () -> subscription.Dispose())
 
 open System
 open System.Windows

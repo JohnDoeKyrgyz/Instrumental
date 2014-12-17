@@ -3,7 +3,6 @@
 open System
 open System.Diagnostics
 open System.Windows
-open ConverterBase
 
 type DebugConverter() =
     inherit ConverterBase()

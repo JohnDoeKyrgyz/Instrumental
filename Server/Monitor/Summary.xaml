@@ -3,6 +3,7 @@
       xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" 
       xmlns:ViewModel="clr-namespace:Instrumental.ViewModel;assembly=Monitor" 
       xmlns:Behavior="clr-namespace:Instrumental.Behavior;assembly=Monitor"
+	  xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
       mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:DesignWidth="424">	
 	<UserControl.DataContext>
@@ -54,7 +55,7 @@
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 		</ItemsControl>
-		<TextBox Text="{Binding TimeoutDuration}" Grid.Row="1"/>
+		<xctk:IntegerUpDown  Grid.Row="1" Minimum="100" Value="{Binding TimeoutDuration}" ToolTip="Number of milliseconds to wait before a signal times out" />
     </Grid>
 </UserControl>
  
